@@ -40,10 +40,6 @@ def answerAllQuestions():
 
         questions = li.find_elements(By.XPATH, "./*")
 
-        # questions = driver.find_elements(
-        #     By.XPATH, "//li[@style='overflow: initial; opacity: 1; height: 52px;']"
-        # )
-
         for question in questions:
             try:
                 print("quest found")
