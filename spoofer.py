@@ -3,8 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 
-#UPDATE THIS, ex) classUrl = "https://app.tophat.com/e/3479473/lecture/"
-classUrl = "https://app.tophat.com/e/SOME NUMBER/lecture/"
+classUrl = "https://app.tophat.com/e/849492/lecture/"
 
 
 def handleUnansweredQuestion(questionElement):
@@ -12,18 +11,22 @@ def handleUnansweredQuestion(questionElement):
 
     multipleChoiceHolder = driver.find_element(
         By.XPATH,
-        "//div[@class='MultipleChoiceQuestionAnswerableItemstyles__StyledContainer-sc-6bz3d1-0 bZyhdo']",
+        "//div[@role='radiogroup']",
     )
 
     # this will answer 'A' every time, it might be better to randomize this
     answerA = multipleChoiceHolder.find_element(By.XPATH, "//label")
     answerA.click()
 
+    print("attempted click A")
+
     try:
+        print("attempted submit")
         submitAnswerButton = driver.find_element(
             By.XPATH, "//button[@data-click-id='submit answer']"
         )
         submitAnswerButton.click()
+        print("submitted")
     except selenium.common.exceptions.NoSuchElementException:
         pass  # if the submission is closed, will not find the submit button, this is fine no need to print error
 
@@ -31,23 +34,30 @@ def handleUnansweredQuestion(questionElement):
 def answerAllQuestions():
     try:
         # this could be made more efficient by navigating the tree directly, though efficiency is not a high concern
-        questions = driver.find_elements(
-            By.XPATH, "//li[@style='overflow: initial; opacity: 1; height: 52px;']"
-        )
+
+        contentTree = driver.find_element(By.XPATH, "//div[@aria-label='Content Tree']")
+        li = contentTree.find_element(By.XPATH, "//li")
+
+        questions = li.find_elements(By.XPATH, "./*")
+
+        # questions = driver.find_elements(
+        #     By.XPATH, "//li[@style='overflow: initial; opacity: 1; height: 52px;']"
+        # )
 
         for question in questions:
             try:
-                question.find_element(
-                    By.XPATH, "//div[@class='list-row list-row--unanswered']"
-                )
+                print("quest found")
+                # question.find_element(
+                #     By.XPATH, "//div[@class='list-row list-row--unanswered']"
+                # )
                 handleUnansweredQuestion(question)
             except selenium.common.exceptions.NoSuchElementException:
-                pass # if cant find the element, no reason to print exception
+                pass
 
             time.sleep(2)
 
     # this may happen if the elements change on the webpage while in the process of manipulating, this is unlikely but won't crash the program
-    except selenium.common.exceptions.StaleElementReferenceException as e1:
+    except Exception as e1:
         print(e1)
 
 
